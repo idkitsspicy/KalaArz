@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalaArz - Embrace the Artistry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a1a14;
+            --secondary-color: #f5f5dc;
+            --text-color: #333;
+            --light-text-color: #fff;
+            --button-bg: #000;
+            --button-text: #fff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--secondary-color); /* Corrected: Added a value */
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- Header --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px 40px;
+        }
+
+        .header .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--light-text-color);
+            transition: color 0.3s ease;
+        }
+        
+        .header.scrolled .logo {
+            color: var(--text-color);
+        }
+
+        .header .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header .auth-buttons a {
+            text-decoration: none;
+            color: var(--light-text-color);
+            padding: 8px 15px;
+            border: 1px solid var(--light-text-color);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .header.scrolled .auth-buttons a {
+            color: var(--text-color);
+            border-color: var(--text-color);
+        }
+
+        .header .auth-buttons a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .header.scrolled .auth-buttons a:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--light-text-color);
+            background-image: url('https://blogs.revv.co.in/blogs/wp-content/uploads/2022/04/Warli-painting.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 5;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+
+        .hero .btn {
+            background: var(--button-bg);
+            color: var(--button-text);
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .hero .btn:hover {
+            background: #333;
+        }
+        
+        /* --- Products Section --- */
+        .section-padding {
+            padding: 80px 40px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .product-item {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .product-item.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .product-item .text-content {
+            flex: 1;
+        }
+
+        .product-item .text-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .product-item .text-content p {
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .product-item .text-content .btn {
+            background: var(--button-bg);
+            color: var(--button-text);
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .product-item .text-content .btn .fa-arrow-right {
+            margin-left: 10px;
+        }
+
+        .product-item .image-container {
+            flex: 1;
+        }
+
+        .product-item .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-picks-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .month-pick-item {
+            text-align: left;
+        }
+        
+        .month-pick-item img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-pick-item h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .month-pick-item p {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .footer .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+
+        .footer .social-icons a {
+            color: var(--text-color);
+            font-size: 1.5em;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        .footer .social-icons a:hover {
+            color: var(--primary-color);
+        }
+        
+        /* --- Responsiveness --- */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .hero h1 {
+                font-size: 2.5em;
+            }
+
+            .hero p {
+                font-size: 1em;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .product-item, .product-item.reverse {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .product-item .text-content {
+                order: 2;
+            }
+            .product-item .image-container {
+                order: 1;
+            }
+            
+            .product-item .text-content h2 {
+                font-size: 2em;
+            }
+            
+            .month-picks-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">KalaArz</div>
+        <div class="auth-buttons">
+            <a href="#" class="home-btn">Home</a>
+            <a href="login.html">Login/Signup</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Embrace the Artistry</h1>
+            <p>Bridging Artisans to the Digital World</p>
+            <a href="#products" class="btn">Discover Collection</a>
+        </div>
+    </section>
+
+  <section class="section-padding" id="products">
+    <div class="product-grid">
+        <div class="product-item">
+            <div class="text-content">
+                <h2>The Cozy Drape</h2>
+                <p>Woven by artisan Rama Devi, this hand-crafted scarf carries the warmth of tradition in every thread. Your choice supports her craft and helps keep hand loom heritage alive.</p>
+                <a href="the-cozy-drape.html" class="btn">Explore Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="image-container">
+                <img src="https://www.kilmora.in/wp-content/uploads/2024/01/YR02-III-1b-scaled.jpg" alt="A hand-crafted scarf">
+            </div>
+        </div>
+        
+        <div class="product-item reverse">
+            <div class="text-content">
+                <h2>Bamboo Bloom</h2>
+                <p>Crafted by artisan Hamaz, this bamboo basket brings a touch of nature and charm to any space, reflecting his care and artistry.</p>
+                <a href="bamboo-bloom.html" class="btn">Explore Now <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="image-container">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUE5VpRIWD6SiC9X9CZOr0WINY2ZeBUPIYOg&s" alt="A woven bamboo basket">
+            </div>
+        </div>
+    </div>
+</section>
+       
+
+    <section class="section-padding" style="padding-top: 0;">
+        <h2>This Month's Picks</h2>
+        <div class="month-picks-container">
+            <div class="month-pick-item">
+                <img src="https://firebasestorage.googleapis.com/v0/b/artisan-3b8d6.firebasestorage.app/o/posts%2F1758219222122-saree.jpg?alt=media&token=b6b9b9a8-53d4-4799-963a-3de3661852e2" alt="A pink silk saree with a peacock design">
+                <h3>Saree Sutra</h3>
+                <p>Handcrafted by artisan Ramakrishnan, this saree carries the soul of tradition in every detail—a timeless drape born from skill and passion.</p>
+            </div>
+            
+            <div class="month-pick-item">
+                <img src="https://nikharjewellery.in/wp-content/uploads/2023/08/IMG-1503-1-scaled.jpg" alt="A stack of colorful bangles">
+                <h3>Sun-Kissed Circles</h3>
+                <p>More than adornments, this bangle pair by Anandini carries the warmth of artisan heritage, blending timeless style with soulful craftsmanship.</p>
+            </div>
+            
+            <div class="month-pick-item">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcGx3ZUs5XgBbOBvLYCUh5zvfECLDS3riWDQ&s" alt="An ornate, glowing lampshade">
+                <h3>GlowNest</h3>
+                <p>Illuminate your home with this artistic lampshade by Sara Bai, where tradition meets style, and each piece tells a story of craftsmanship.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="logo">KalaArz</div>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-pinterest"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll to sections
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Dynamic header on scroll
+        const header = document.querySelector('.header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // "Home" button functionality
+        document.querySelector('.home-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+       
+    </script>
+
+</body>
+</html>
