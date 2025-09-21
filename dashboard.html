@@ -108,101 +108,103 @@
   <center>
   <h2>Your Artisans</h2></center>
   <div id="artisanList"></div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBnBjnfbt2N6LHxBVkSMmEuu_51JI0NHzI",
+    authDomain: "artisan-3b8d6.firebaseapp.com",
+    databaseURL: "https://artisan-3b8d6-default-rtdb.firebaseio.com",
+    projectId: "artisan-3b8d6",
+    storageBucket: "artisan-3b8d6.firebasestorage.app",
+    messagingSenderId: "63442588763",
+    appId: "1:63442588763:web:72a583c2a6a1f26d63db7e",
+    measurementId: "G-01922BTK99"
+  };
 
-    // Your Firebase config
-    const firebaseConfig = {
-     apiKey: "AIzaSyBnBjnfbt2N6LHxBVkSMmEuu_51JI0NHzI",
-  authDomain: "artisan-3b8d6.firebaseapp.com",
-  databaseURL: "https://artisan-3b8d6-default-rtdb.firebaseio.com",
-  projectId: "artisan-3b8d6",
-  storageBucket: "artisan-3b8d6.firebasestorage.app",
-  messagingSenderId: "63442588763",
-  appId: "1:63442588763:web:72a583c2a6a1f26d63db7e",
-  measurementId: "G-01922BTK99"
-    };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const artisanList = document.getElementById("artisanList");
+  const sendUidBtn = document.getElementById("sendUidBtn");
+  let currentUser = null;
+  let currentIdToken = null;
 
-    const artisanList = document.getElementById("artisanList");
-     
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        artisanList.innerHTML = "<p>Please log in first.</p>";
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      artisanList.innerHTML = "<p>Please log in first.</p>";
+      return;
+    }
+
+    currentUser = user;
+    currentIdToken = await user.getIdToken();
+
+    console.log("Current user ID is:", currentUser.uid);
+
+    try {
+      const artisansRef = collection(db, "NGOs", currentUser.uid, "artisans");
+      const artisansSnap = await getDocs(artisansRef);
+
+      if (artisansSnap.empty) {
+        artisanList.innerHTML = "<p>No artisans found.</p>";
         return;
       }
 
-      const uid = user.uid;
-      console.log("Current user ID is:", uid);
-
-      try {
-        // Reference to artisans subcollection of this NGO
-        const artisansRef = collection(db, "NGOs", uid, "artisans");
-        const artisansSnap = await getDocs(artisansRef);
-
-        if (artisansSnap.empty) {
-          artisanList.innerHTML = "<p>No artisans found.</p>";
-          return;
-        }
-
-        artisansSnap.forEach(docSnap => {
-          const data = docSnap.data();
-          const div = document.createElement("div");
-          div.innerHTML = `
-            <h3>${data.name}</h3>
-            <p>Age: ${data.age}</p>
-            <p><span style="font-weight:bold">Background:</span><br> ${data.bio}</p>
-            <hr/>
-          `;
-          artisanList.appendChild(div);
-        });
-      } catch (err) {
-        console.error(err);
-        artisanList.innerHTML = "<p>Error loading artisans.</p>";
-      }
-       const sendUidBtn = document.getElementById("sendUidBtn");
-  sendUidBtn.addEventListener("click", async () => {
-      // Make sure user is still logged in
-      if (!auth.currentUser) {
-          alert("Please log in first!");
-          return;
-      }
-      const idToken = await auth.currentUser.getIdToken();
-      console.log("Sending ID token to backend:", idToken);
-
-      try {
-          const resp = await fetch("https://kalaarz-1.com/generate", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                  idToken: idToken,
-                  prompt: "Write a story about my craft product"
-              })
-          });
-          const data = await resp.json();
-          if (data.ok) {
-              console.log("UID from backend verified:", data.uid);
-              alert("Story received from backend:\n" + data.story);
-          } else {
-              console.error(data.error);
-              alert("Error from backend: " + data.error);
-          }
-      } catch (err) {
-          console.error(err);
-          alert("Failed to send UID to backend.");
-      }
+      artisansSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <h3>${data.name}</h3>
+          <p>Age: ${data.age}</p>
+          <p><span style="font-weight:bold">Background:</span><br> ${data.bio}</p>
+          <hr/>
+        `;
+        artisanList.appendChild(div);
+      });
+    } catch (err) {
+      console.error(err);
+      artisanList.innerHTML = "<p>Error loading artisans.</p>";
+    }
   });
-    });
-    
-  </script>
+
+  // --- Send UID/ID Token to kalaarz-1.com ---
+  sendUidBtn.addEventListener("click", async () => {
+    if (!currentIdToken) {
+      alert("⚠️ User not logged in or token unavailable");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://kalaarz-1.com/set-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ idToken: currentIdToken })
+      });
+
+      const data = await response.json();
+      if (data.ok) {
+        alert("✅ UID/token sent to kalaarz-1.com successfully!");
+      } else {
+        alert("❌ Failed: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error sending UID/token: " + err.message);
+    }
+  });
+</script>
+
+
+
 </body>
 </html>
+
 
 
 
