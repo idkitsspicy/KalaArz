@@ -68,7 +68,7 @@ python  app.py
 
 ## Architecture  
 - **Frontend** → User Interface (Artisan/NGO/Customer dashboards).  
-- **Backend** → Flask + Node.js handling requests and AI integration.  
+- **Backend** → Flask handling requests and AI integration.  
 - **AI Layer** → Gemini API for story generation + analytics.  
 - **Database** → Firebase for storing artisan profiles, NGO data, and stories.  
 
@@ -76,15 +76,17 @@ python  app.py
 
 ## Demo  
 ---
- (demo link to be pasted)
+Prototype(MVP Link) : https://kalaarz-3.onrender.com
   
 --- 
 
 ## Team – KalaArz  
 - **Team Name**: KalaArz  
 - **Team Leader**: Archita Dhole  
-- **Members**: Lalasa Vattipalli, Dhanush Gundapally, N Sai Deepu 
+- **Members**: Lalasa Vattipalli, Dhanush Gundlapally, N Sai Deepu 
 
 ---
+## Notice
+There are a few known bugs related to the Firestore database integration. We are actively working on a resolution for a future update.
 
  
