@@ -55,7 +55,8 @@ pip install -r requirements.txt   # backend
 # Run the app
 python  app.py             
 ```
-
+## Credentials ( Please use these for logging-in as NGOs )
+Valid NGO IDs : ["NGO123", "NGO456", "NGO789"]
 ---
 
 ## Usage  
