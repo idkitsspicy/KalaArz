@@ -102,6 +102,8 @@
   </ul>
   
 </nav>
+  <button id="sendUidBtn">Send UID to Backend</button>
+
   <h1>Welcome to your Dashboard</h1>
   <center>
   <h2>Your Artisans</h2></center>
@@ -129,7 +131,7 @@
     const db = getFirestore(app);
 
     const artisanList = document.getElementById("artisanList");
-
+     
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         artisanList.innerHTML = "<p>Please log in first.</p>";
@@ -164,9 +166,43 @@
         console.error(err);
         artisanList.innerHTML = "<p>Error loading artisans.</p>";
       }
+       const sendUidBtn = document.getElementById("sendUidBtn");
+  sendUidBtn.addEventListener("click", async () => {
+      // Make sure user is still logged in
+      if (!auth.currentUser) {
+          alert("Please log in first!");
+          return;
+      }
+      const idToken = await auth.currentUser.getIdToken();
+      console.log("Sending ID token to backend:", idToken);
+
+      try {
+          const resp = await fetch("https://kalaarz-1.com/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  idToken: idToken,
+                  prompt: "Write a story about my craft product"
+              })
+          });
+          const data = await resp.json();
+          if (data.ok) {
+              console.log("UID from backend verified:", data.uid);
+              alert("Story received from backend:\n" + data.story);
+          } else {
+              console.error(data.error);
+              alert("Error from backend: " + data.error);
+          }
+      } catch (err) {
+          console.error(err);
+          alert("Failed to send UID to backend.");
+      }
+  });
     });
+    
   </script>
 </body>
 </html>
+
 
 
