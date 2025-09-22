@@ -137,11 +137,18 @@
   let currentUser = null;
   let currentIdToken = null;
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      artisanList.innerHTML = "<p>Please log in first.</p>";
-      return;
-    }
+  onAuthStateChanged(auth, (user) => {
+      if (user) {
+          const uid = user.uid;
+         const addProductLink = document.getElementById('addProductLink');
+        addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${uid}`;
+        ngoUid = user.uid; // ✅ NGO's docId == auth.uid
+        console.log("NGO logged in:", ngoUid);
+        loadPosts();
+      } else {
+        alert("⚠️ Please log in as an NGO to manage products.");
+      }
+  });
 
     currentUser = user;
     currentIdToken = await user.getIdToken();
@@ -207,6 +214,7 @@
 
 </body>
 </html>
+
 
 
 
