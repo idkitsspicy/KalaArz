@@ -112,110 +112,90 @@
   <h2>Your Artisans</h2></center>
   <div id="artisanList"></div>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Firebase config
+  // ✅ Firebase config
   const firebaseConfig = {
-    apiKey: "AIzaSyBnBjnfbt2N6LHxBVkSMmEuu_51JI0NHzI",
-    authDomain: "artisan-3b8d6.firebaseapp.com",
-    databaseURL: "https://artisan-3b8d6-default-rtdb.firebaseio.com",
-    projectId: "artisan-3b8d6",
-    storageBucket: "artisan-3b8d6.firebasestorage.app",
-    messagingSenderId: "63442588763",
-    appId: "1:63442588763:web:72a583c2a6a1f26d63db7e",
-    measurementId: "G-01922BTK99"
+    apiKey: "AIzaSyCUvL0R-gSGDjAvpH-1w9Dwli36mEMC6lA",
+    authDomain: "kalakendra-62008.firebaseapp.com",
+    projectId: "kalakendra-62008",
+    storageBucket: "kalakendra-62008.appspot.com",
+    messagingSenderId: "499557774019",
+    appId: "1:499557774019:web:a3a1481b626b674dd446f0"
   };
 
+  // ✅ Init Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const artisanList = document.getElementById("artisanList");
-  const sendUidBtn = document.getElementById("sendUidBtn");
+  // ✅ Track current user & token
   let currentUser = null;
   let currentIdToken = null;
 
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          const uid = user.uid;
-         const addProductLink = document.getElementById('addProductLink');
-        addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${uid}`;
-        ngoUid = user.uid; // ✅ NGO's docId == auth.uid
-        console.log("NGO logged in:", ngoUid);
-        loadPosts();
-      } else {
-        alert("⚠️ Please log in as an NGO to manage products.");
-      }
-  });
-
-    currentUser = user;
-    currentIdToken = await user.getIdToken();
-
-    console.log("Current user ID is:", currentUser.uid);
-  const addProductLink = document.getElementById('addProductLink');
-    if ( currentUser.uid) addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${ currentUser.uid}`;
-
+  // ✅ Function to load artisans for this NGO
+  async function loadArtisans(uid) {
     try {
-      const artisansRef = collection(db, "NGOs", currentUser.uid, "artisans");
-      const artisansSnap = await getDocs(artisansRef);
+      const postsDiv = document.getElementById("posts");
+      postsDiv.innerHTML = "";
 
-      if (artisansSnap.empty) {
-        artisanList.innerHTML = "<p>No artisans found.</p>";
+      const q = query(collection(db, "artisans"), where("ngoId", "==", uid));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        postsDiv.innerHTML = "<p>No artisans found for your NGO.</p>";
         return;
       }
 
-      artisansSnap.forEach(docSnap => {
-        const data = docSnap.data();
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
         const div = document.createElement("div");
+        div.classList.add("post-card");
         div.innerHTML = `
           <h3>${data.name}</h3>
           <p>Age: ${data.age}</p>
-          <p><span style="font-weight:bold">Background:</span><br> ${data.bio}</p>
-          <hr/>
+          <p>${data["background-story"]}</p>
+          <p>Gender: ${data.gender}</p>
         `;
-        artisanList.appendChild(div);
+        postsDiv.appendChild(div);
       });
-    } catch (err) {
-      console.error(err);
-      artisanList.innerHTML = "<p>Error loading artisans.</p>";
+    } catch (error) {
+      console.error("Error loading artisans:", error);
     }
-  });
+  }
 
-  // --- Send UID/ID Token to kalaarz-1.com ---
-  sendUidBtn.addEventListener("click", async () => {
-    if (!currentIdToken) {
-      alert("⚠️ User not logged in or token unavailable");
-      return;
-    }
+  // ✅ Auth state listener
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      currentIdToken = await user.getIdToken();
+      const uid = user.uid;
 
-    try {
-      const response = await fetch("https://kala-arz-h00h.onrender.com/story", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ idToken: currentIdToken })
-      });
+      console.log("NGO logged in:", uid);
 
-      const data = await response.json();
-      if (data.ok) {
-        alert("✅ UID/token sent to kalaarz-1.com successfully!");
-      } else {
-        alert("❌ Failed: " + data.error);
+      // Set Add Product link dynamically
+      const addProductLink = document.getElementById("addProductLink");
+      if (addProductLink) {
+        addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${uid}`;
       }
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error sending UID/token: " + err.message);
+
+      // Load artisans for this NGO
+      loadArtisans(uid);
+
+    } else {
+      alert("⚠️ Please log in as an NGO to manage products.");
     }
   });
 </script>
 
 
 
+
 </body>
 </html>
+
 
 
 
