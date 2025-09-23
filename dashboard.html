@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>NGO Dashboard</title>
   <style>
-     body {
+    body {
       font-family: 'Georgia', serif;
       background: linear-gradient(135deg, #f6f1eb, #fff8f0);
       padding: 20px;
@@ -16,19 +16,6 @@
       font-size: 2rem;
       color: #7b4e35;
       margin-bottom: 20px;
-    }
-    .ngo-info {
-      max-width: 600px;
-      margin: 0 auto 30px auto;
-      padding: 20px;
-      background: #fff4ee;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(123, 78, 53, 0.2);
-    }
-    .ngo-info p {
-      margin: 8px 0;
-      font-size: 1rem;
-      color: #5a4639;
     }
     .artisan-list {
       max-width: 700px;
@@ -58,150 +45,125 @@
       color: #5a4639;
       line-height: 1.4;
     }
-        .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #7b4e35;
-  padding: 12px 24px;
-  color: #fff;
-}
-
-.navbar .logo {
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-}
-
-.nav-links li a {
-  text-decoration: none;
-  color: #fff;
-  font-weight: 500;
-}
-
-.nav-links li a:hover {
-  color: #f6f1eb;
-}
-
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #7b4e35;
+      padding: 12px 24px;
+      color: #fff;
+    }
+    .navbar .logo {
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links li a {
+      text-decoration: none;
+      color: #fff;
+      font-weight: 500;
+    }
+    .nav-links li a:hover {
+      color: #f6f1eb;
+    }
   </style>
 </head>
 <body>
   <nav class="navbar">
-  <div class="logo">KalaArz</div>
-  <ul class="nav-links">
-    <li><a href="dashboard.html">Dashboard</a></li>
-    <li><a href="catalog.html">Your Products</a></li>
-    <li><a href="start-journey.html">Add Artisan</a></li>
-      <li>
-  <a id="addProductLink" href="#" target="_blank">Add Product</a>
-</li>
-
-    <li><a href="https://kalaarz-2.onrender.com">Market Insights</a></li>
-     <li><a href="home.html">Stories</a></li>
-  </ul>
-  
-</nav>
-  <button id="sendUidBtn">Send UID to Backend</button>
+    <div class="logo">KalaArz</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="catalog.html">Your Products</a></li>
+      <li><a href="start-journey.html">Add Artisan</a></li>
+      <li><a id="addProductLink" href="#" target="_blank">Add Product</a></li>
+      <li><a href="https://kalaarz-2.onrender.com">Market Insights</a></li>
+      <li><a href="home.html">Stories</a></li>
+    </ul>
+  </nav>
 
   <h1>Welcome to your Dashboard</h1>
-  <center>
-  <h2>Your Artisans</h2></center>
-<div id="artisanList"></div>
+  <center><h2>Your Artisans</h2></center>
+  <div id="artisanList"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCUvL0R-gSGDjAvpH-1w9Dwli36mEMC6lA",
-    authDomain: "kalakendra-62008.firebaseapp.com",
-    projectId: "kalakendra-62008",
-    storageBucket: "kalakendra-62008.appspot.com",
-    messagingSenderId: "499557774019",
-    appId: "1:499557774019:web:a3a1481b626b674dd446f0"
-  };
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCUvL0R-gSGDjAvpH-1w9Dwli36mEMC6lA",
+      authDomain: "kalakendra-62008.firebaseapp.com",
+      projectId: "kalakendra-62008",
+      storageBucket: "kalakendra-62008.appspot.com",
+      messagingSenderId: "499557774019",
+      appId: "1:499557774019:web:a3a1481b626b674dd446f0"
+    };
 
-  // Init Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    // ✅ Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // Load artisans for this NGO
-  async function loadArtisans(uid) {
-    try {
+    // ✅ Function to load artisans for this NGO
+    async function loadArtisans(uid) {
       const artisanList = document.getElementById("artisanList");
-      artisanList.innerHTML = "";
+      artisanList.innerHTML = "<p>Loading artisans...</p>";
 
-      const artisansRef = collection(db, "NGOs", uid, "artisans");
-      const querySnapshot = await getDocs(artisansRef);
+      try {
+        const artisansRef = collection(db, "NGOs", uid, "artisans");
+        const querySnapshot = await getDocs(artisansRef);
 
-      if (querySnapshot.empty) {
-        artisanList.innerHTML = "<p>No artisans found for your NGO.</p>";
-        return;
+        artisanList.innerHTML = "";
+        if (querySnapshot.empty) {
+          artisanList.innerHTML = "<p>No artisans found for your NGO.</p>";
+          return;
+        }
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.classList.add("artisan-card");
+          div.innerHTML = `
+            <h3>${data.name || "Unnamed"}</h3>
+            <p>Age: ${data.age || "N/A"}</p>
+            <p>${data.bio || data["background-story"] || ""}</p>
+            <p>Craft: ${data.craft || ""}</p>
+          `;
+          artisanList.appendChild(div);
+        });
+      } catch (error) {
+        console.error("❌ Error loading artisans:", error);
+        artisanList.innerHTML = "<p style='color:red;'>Error loading artisans. Check console.</p>";
       }
-
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const div = document.createElement("div");
-        div.classList.add("artisan-card");
-        div.innerHTML = `
-          <h3>${data.name}</h3>
-          <p>Age: ${data.age}</p>
-          <p>${data.bio || data["background-story"] || ""}</p>
-          <p>Craft: ${data.craft || ""}</p>
-        `;
-        artisanList.appendChild(div);
-      });
-    } catch (error) {
-      console.error("Error loading artisans:", error);
     }
-  }
 
-  // Auth state listener
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const uid = user.uid;
-      console.log("NGO logged in:", uid);
+    // ✅ Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      console.log("🔄 Auth state changed:", user);
 
-      // Set Add Product link dynamically
-      const addProductLink = document.getElementById("addProductLink");
-      if (addProductLink) {
-        addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${uid}`;
+      if (user) {
+        const uid = user.uid;
+        console.log("✅ NGO logged in:", uid);
+
+        // Set Add Product link dynamically
+        const addProductLink = document.getElementById("addProductLink");
+        if (addProductLink) {
+          addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${uid}`;
+        }
+
+        // Load artisans
+        loadArtisans(uid);
+      } else {
+        alert("⚠️ Please log in as an NGO to manage products.");
+        document.getElementById("artisanList").innerHTML =
+          "<p style='color:red;'>Not logged in. Please go to login page.</p>";
       }
-
-      // Load artisans
-      loadArtisans(uid);
-    } else {
-      alert("⚠️ Please log in as an NGO to manage products.");
-    }
-  });
-</script>
-
+    });
+  </script>
 </body>
-
-
-
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
