@@ -115,7 +115,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // ✅ Firebase config
   const firebaseConfig = {
@@ -132,18 +132,15 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // ✅ Track current user & token
-  let currentUser = null;
-  let currentIdToken = null;
-
   // ✅ Function to load artisans for this NGO
   async function loadArtisans(uid) {
     try {
       const postsDiv = document.getElementById("posts");
       postsDiv.innerHTML = "";
 
-      const q = query(collection(db, "artisans"), where("ngoId", "==", uid));
-      const querySnapshot = await getDocs(q);
+      // 🔑 Correct path: NGOs/{uid}/artisans
+      const artisansRef = collection(db, "NGOs", uid, "artisans");
+      const querySnapshot = await getDocs(artisansRef);
 
       if (querySnapshot.empty) {
         postsDiv.innerHTML = "<p>No artisans found for your NGO.</p>";
@@ -157,8 +154,8 @@
         div.innerHTML = `
           <h3>${data.name}</h3>
           <p>Age: ${data.age}</p>
-          <p>${data["background-story"]}</p>
-          <p>Gender: ${data.gender}</p>
+          <p>${data.bio || data["background-story"] || ""}</p>
+          <p>Craft: ${data.craft || ""}</p>
         `;
         postsDiv.appendChild(div);
       });
@@ -170,10 +167,7 @@
   // ✅ Auth state listener
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      currentUser = user;
-      currentIdToken = await user.getIdToken();
       const uid = user.uid;
-
       console.log("NGO logged in:", uid);
 
       // Set Add Product link dynamically
@@ -184,18 +178,19 @@
 
       // Load artisans for this NGO
       loadArtisans(uid);
-
     } else {
       alert("⚠️ Please log in as an NGO to manage products.");
     }
   });
 </script>
 
-
-
-
 </body>
+
+
+
+
 </html>
+
 
 
 
