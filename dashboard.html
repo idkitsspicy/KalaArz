@@ -111,13 +111,14 @@
   <h1>Welcome to your Dashboard</h1>
   <center>
   <h2>Your Artisans</h2></center>
-  <div id="artisanList"></div>
+<div id="artisanList"></div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // ✅ Firebase config
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCUvL0R-gSGDjAvpH-1w9Dwli36mEMC6lA",
     authDomain: "kalakendra-62008.firebaseapp.com",
@@ -127,44 +128,43 @@
     appId: "1:499557774019:web:a3a1481b626b674dd446f0"
   };
 
-  // ✅ Init Firebase
+  // Init Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // ✅ Function to load artisans for this NGO
+  // Load artisans for this NGO
   async function loadArtisans(uid) {
     try {
-      const postsDiv = document.getElementById("posts");
-      postsDiv.innerHTML = "";
+      const artisanList = document.getElementById("artisanList");
+      artisanList.innerHTML = "";
 
-      // 🔑 Correct path: NGOs/{uid}/artisans
       const artisansRef = collection(db, "NGOs", uid, "artisans");
       const querySnapshot = await getDocs(artisansRef);
 
       if (querySnapshot.empty) {
-        postsDiv.innerHTML = "<p>No artisans found for your NGO.</p>";
+        artisanList.innerHTML = "<p>No artisans found for your NGO.</p>";
         return;
       }
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const div = document.createElement("div");
-        div.classList.add("post-card");
+        div.classList.add("artisan-card");
         div.innerHTML = `
           <h3>${data.name}</h3>
           <p>Age: ${data.age}</p>
           <p>${data.bio || data["background-story"] || ""}</p>
           <p>Craft: ${data.craft || ""}</p>
         `;
-        postsDiv.appendChild(div);
+        artisanList.appendChild(div);
       });
     } catch (error) {
       console.error("Error loading artisans:", error);
     }
   }
 
-  // ✅ Auth state listener
+  // Auth state listener
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const uid = user.uid;
@@ -176,7 +176,7 @@
         addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${uid}`;
       }
 
-      // Load artisans for this NGO
+      // Load artisans
       loadArtisans(uid);
     } else {
       alert("⚠️ Please log in as an NGO to manage products.");
@@ -190,6 +190,7 @@
 
 
 </html>
+
 
 
 
