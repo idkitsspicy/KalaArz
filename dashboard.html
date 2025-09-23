@@ -154,6 +154,8 @@
     currentIdToken = await user.getIdToken();
 
     console.log("Current user ID is:", currentUser.uid);
+  const addProductLink = document.getElementById('addProductLink');
+    if ( currentUser.uid) addProductLink.href = `https://kala-arz-h00h.onrender.com/story?uid=${ currentUser.uid}`;
 
     try {
       const artisansRef = collection(db, "NGOs", currentUser.uid, "artisans");
@@ -214,6 +216,7 @@
 
 </body>
 </html>
+
 
 
 
