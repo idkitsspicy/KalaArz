@@ -216,8 +216,8 @@
             e.preventDefault();
             try {
               await setDoc(doc(db, "Wishlist", `${cust_id}_${prod_id}`), {
-                customerId: cust_id,
-                productId: prod_id,
+                customer_id: cust_id,
+                product_id: prod_id,
                 timestamp: new Date()
               });
               alert("✅ Added to wishlist!");
@@ -251,3 +251,4 @@
   </script>
 </body>
 </html>
+
