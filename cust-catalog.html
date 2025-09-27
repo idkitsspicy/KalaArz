@@ -138,118 +138,82 @@
   <div class="product-grid" id="productGrid"></div>
 
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, setDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBnBjnfbt2N6LHxBVkSMmEuu_51JI0NHzI",
-      authDomain: "artisan-3b8d6.firebaseapp.com",
-      projectId: "artisan-3b8d6",
-      storageBucket: "artisan-3b8d6.appspot.com",
-      messagingSenderId: "63442588763",
-      appId: "1:63442588763:web:72a583c2a6a1f26d63db7e"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyBnBjnfbt2N6LHxBVkSMmEuu_51JI0NHzI",
+    authDomain: "artisan-3b8d6.firebaseapp.com",
+    projectId: "artisan-3b8d6",
+    storageBucket: "artisan-3b8d6.appspot.com",
+    messagingSenderId: "63442588763",
+    appId: "1:63442588763:web:72a583c2a6a1f26d63db7e"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
+  function truncate(text, max = 180) {
+    return !text ? "" : text.length > max ? text.slice(0, max) + "…" : text;
+  }
+
+  function loadAllProducts() {
     const productGrid = document.getElementById("productGrid");
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
-    // helper
-    function truncate(text, max = 220) {
-      if (!text) return "";
-      return text.length > max ? text.slice(0, max) + "…" : text;
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        alert("⚠️ Please log in first");
-        window.location.href = "login.html";
+    onSnapshot(q, snapshot => {
+      productGrid.innerHTML = "";
+      if (snapshot.empty) {
+        productGrid.innerHTML = "<p>No products yet.</p>";
         return;
       }
 
-      const cust_id = user.uid;
-      console.log("✅ Customer logged in:", cust_id);
+      snapshot.forEach(docSnap => {
+        const product = docSnap.data();
 
-      // fetch posts
-      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-      onSnapshot(q, (snapshot) => {
-        productGrid.innerHTML = "";
+        const card = document.createElement("div");
+        card.className = "product-card";
 
-        if (snapshot.empty) {
-          productGrid.innerHTML = "<p>No artisan products yet.</p>";
-          return;
-        }
+        const tagsHTML = product.tags?.length > 0
+          ? `<div class="tags">${product.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>`
+          : "";
 
-        snapshot.forEach((docSnap) => {
-          const product = docSnap.data();
-          const prod_id = docSnap.id;
+        card.innerHTML = `
+          <img src="${product.imageUrl || ''}" alt="${product.productName || 'Product'}">
+          <h3>${product.productName || 'Unnamed Product'}</h3>
+          <p><strong>By:</strong> ${product.name || 'Unknown Artisan'} (${product.place || ''})</p>
+          <p><i>${truncate(product.story)}</i></p>
+          ${tagsHTML}
+        `;
 
-          const card = document.createElement("div");
-          card.className = "product-card";
-
-          const tagsHTML = product.tags?.length
-            ? `<div class="tags">${product.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}</div>`
-            : "";
-
-          const link = document.createElement("a");
-          link.href = `${(product.productName || "product").toLowerCase().replace(/\s+/g, '-')}.html`;
-          link.style.textDecoration = 'none';
-          link.style.color = 'inherit';
-
-          link.innerHTML = `
-            <img src="${product.imageUrl || ''}" alt="${product.productName || 'Product'}">
-            <h3>${product.productName || "Unnamed Product"}</h3>
-            <p><strong>By:</strong> ${product.name || "Unknown Artisan"} (${product.place || ""})</p>
-            <p><i>${truncate(product.story)}</i></p>
-            ${tagsHTML}
-          `;
-
-          const wishlistBtn = document.createElement("button");
-          wishlistBtn.className = "wishlist-btn";
-          wishlistBtn.innerHTML = "♡ Add to Wishlist";
-
-          wishlistBtn.addEventListener("click", async (e) => {
-            e.preventDefault();
-            try {
-              await setDoc(doc(db, "Wishlist", `${cust_id}_${prod_id}`), {
-                customer_id: cust_id,
-                product_id: prod_id,
-                timestamp: new Date()
-              });
-              alert("✅ Added to wishlist!");
-            } catch (err) {
-              console.error("Wishlist error:", err);
-              alert("❌ Could not add to wishlist.");
-            }
-          });
-
-          card.appendChild(link);
-          card.appendChild(wishlistBtn);
-          productGrid.appendChild(card);
-        });
+        productGrid.appendChild(card);
       });
     });
+  }
 
-    // ✅ Search bar
-    const searchBar = document.getElementById("searchBar");
-    if (searchBar) {
-      searchBar.addEventListener("keyup", () => {
-        const query = searchBar.value.toLowerCase();
-        document.querySelectorAll(".product-card").forEach(card => {
-          const name = card.querySelector("h3")?.textContent.toLowerCase() || "";
-          const description = card.querySelector("p")?.textContent.toLowerCase() || "";
-          const tags = card.querySelector(".tags")?.textContent.toLowerCase() || "";
-          const combined = name + " " + description + " " + tags;
-          card.style.display = combined.includes(query) ? "block" : "none";
-        });
+  // Load for customers (no filter by UID)
+  loadAllProducts();
+
+  // Search bar
+  const searchBar = document.getElementById("searchBar");
+  if (searchBar) {
+    searchBar.addEventListener("keyup", () => {
+      const query = searchBar.value.toLowerCase();
+      document.querySelectorAll(".product-card").forEach(card => {
+        const name = card.querySelector("h3")?.textContent.toLowerCase() || "";
+        const description = card.querySelector("p")?.textContent.toLowerCase() || "";
+        const tags = card.querySelector(".tags")?.textContent.toLowerCase() || "";
+        card.style.display = (name + " " + description + " " + tags).includes(query) ? "block" : "none";
       });
-    }
-  </script>
+    });
+  }
+</script>
+
 </body>
 </html>
+
 
 
