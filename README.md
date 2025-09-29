@@ -77,7 +77,7 @@ python  app.py
 
 ## Demo  
 ---
-Prototype(MVP Link) : https://kalaarz-3.onrender.com
+Prototype(MVP Link) : https://kala-arz-gpci.vercel.app/
 Youtube Link: https://youtu.be/gdl5ayPpt-Y
   
 --- 
